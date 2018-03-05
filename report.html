@@ -12098,7 +12098,12 @@ Run the agent.py file after setting the flags from projects/smartcab folder inst
 <li><p>For <strong>safety</strong>: <strong>inputs</strong> data is very important and it is highly relevant.</p>
 <ul>
 <li><em>light color</em> determines when the agent should move or stop.</li>
-<li><em>left/onComing</em> data is important to avoid crashing with other cars. <em>right</em> input is not important, unless the car would be able to take a U-turn within an intersection, so it can be ignored.</li>
+<li><em>left/onComing/right</em> data is important to avoid crashing with other cars:<ul>
+<li>For <em>left</em> input, If it has a car that intends to go straight, then the agent should not take a right turn on a red light, this would cause an accident. However, if it has a car intends to go right or left, the agent is also safe to take a right.</li>
+<li>For <em>right</em> input, the agent can avoid crashing with red light, if it turns to the right. But the <em>right</em> input is not necessary in the US, because in case of a green light or a red light, the right lane traffic wil never interfer with the cab's direction.</li>
+<li>For, <em>onComing</em> input, it is important when our agent wants to turn left, as if the light is green it still needs to wait.</li>
+</ul>
+</li>
 </ul>
 </li>
 <li><p>For <strong>efficiency</strong>: <strong>waypoint</strong> is more relevant to achieving the efficiency, since it ensures that reaching the destination in the best way. Although deadline is important, it can be excluded, since there are no clear factors that affect it, plus it will increase the size of state space.</p>
@@ -12440,6 +12445,8 @@ You may also use a decaying function for $\alpha$ (the learning rate) if you so 
 <li>waypoint=forward, light=green, left=none, onComing=none &gt; action=forward  (which would be the case for all situations for 'left' and 'oncoming' - remember I did not include 'right').</li>
 <li>waypoint=right, light=red, left=left, onComing=none &gt; action=right</li>
 <li>waypoint=left, light=green, left=none, onComing=forward &gt; action=stop</li>
+<li>waypoint=right, light=red, left=forward, onComing=none &gt; action=stop</li>
+<li>waypoint=left, light=green, left=none, onComing=right&gt; action=right</li>
 </ul>
 </li>
 <li><p>By investigating 'sim_improved-learning.txt':</p>
@@ -12465,14 +12472,32 @@ You may also use a decaying function for $\alpha$ (the learning rate) if you so 
 <li><p>for 3rd policy: this example differs from the expected optimal policy, where the expected action is None but it is 'forward'
 ('left', 'green', None, 'forward')</p>
 <ul>
-<li>forward : 1.02 &lt;&lt; the actual action</li>
-<li>right : 0.21</li>
-<li>None : -5.00 &lt;&lt; the expected action</li>
-<li>left : -19.74</li>
+<li>forward : 0.46 &lt;&lt; the actual action</li>
+<li>right : 0.45</li>
+<li>None : -5.04 &lt;&lt; the expected action</li>
+<li>left : -20.00</li>
 </ul>
 <p>this may be because the Q-Learner has learned to always move, rather than wait till it's safe to follow the waypoint. It also suggests a priority of safety over reliability.</p>
 </li>
 </ul>
+</li>
+</ul>
+<ul>
+<li><p>for 4th policy: this is an example where:
+('right', 'red', 'forward', None)</p>
+
+<pre><code>- forward : -39.51
+- right : -18.46
+- None : 0.87 &lt;&lt; the expected action to avoid crash
+- left : -39.29</code></pre>
+</li>
+<li><p>for 5th policy: this is an example where:
+('left', 'green', None, 'right')</p>
+
+<pre><code>- forward : 0.30
+- right : 1.48 &lt;&lt; the expected action for safety rather than go forward
+- None : -4.08
+- left : -15.19</code></pre>
 </li>
 </ul>
 

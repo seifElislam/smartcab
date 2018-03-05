@@ -123,10 +123,13 @@ class LearningAgent(Agent):
             action = random.choice(self.valid_actions)
         # Otherwise, choose an action with the highest Q-value for the current state
         else:
+            max_actions = []
             max_q = self.get_maxQ(state)
             for a, q in self.Q[state].items():
                 if q == max_q:
-                    action = a
+                    # action = a
+                    max_actions.append(a)
+            action = random.choice(max_actions)
         # Be sure that when choosing an action with highest Q-value that you randomly select between actions that "tie".
         return action
 
